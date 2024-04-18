@@ -1,7 +1,7 @@
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
 
-#define leftButtonPin 2 // move left button connected to pin 2
+#define leftButtonPin 10 // move left button connected to pin 2
 #define selectButtonPin 3 // select button connected to pin 3
 #define rightButtonPin 4 // move right button connected to pin 4
 
@@ -11,6 +11,8 @@ int selectButtonState = HIGH; // initialize select button state to HIGH (not pre
 int selectButtonPrevState = HIGH; // initialize select button previous state to HIGH (not pressed)
 int rightButtonState = HIGH; // initialize right button state to HIGH (not pressed)
 int rightButtonPrevState = HIGH; // initialize right button previous state to HIGH (not pressed)
+
+int i = 0; // index variable for selection
 
 LiquidCrystal_I2C lcd(0x27,20,4);  // set the LCD address to 0x27 for a 20 chars and 4 line display
 
@@ -23,6 +25,7 @@ byte arrow[] = {
     B00100,
     B00100,
     B00100,
+    B00000,
   };
 
 void setup() {
@@ -50,6 +53,11 @@ void setup() {
   lcd.setCursor(16,1);
   lcd.print("5"); // bay 5
 
+  // Line 3
+  lcd.createChar(0, arrow); // create the custom arrow character called from global scope
+  lcd.setCursor(0,2);
+  lcd.write(0); // writes byte[0] (arrow) to the screen
+
   // Line 4
   lcd.setCursor(0,3);
   lcd.print("Humid:15%"); // place holder for humidity sensor
@@ -62,30 +70,21 @@ void loop() {
   leftButtonState = digitalRead(leftButtonPin); // get value of button state, HIGH = not pressed, LOW = pressed
   selectButtonState = digitalRead(selectButtonPin); // get value of button state, HIGH = not pressed, LOW = pressed
   rightButtonState = digitalRead(rightButtonPin); // get value of button state, HIGH = not pressed, LOW = pressed
-  
-    // Line 3
-  lcd.createChar(0, arrow); // create the custom arrow character called from global scope
-  lcd.setCursor(0,2);
-  //lcd.write(0); // writes byte[0] (arrow) to the screen
-  int i = 0;
 
   if (leftButtonPrevState == LOW && leftButtonState == HIGH)
   {
-    while(i < 19)
+    i = i - 4; // move left 4 indexes to move to each bay
+
+    if (i < 0) // if arrow at bay 1 on screen -> button pressed -> move to bay 5
     {
-      i = i - 3;
-
-      if (i < 0)
-      {
-        i = 17;
-      }
-
-      lcd.setCursor(0,2);
-      lcd.print("                    ");
-      delay(200);
-      lcd.setCursor(4,2);
-      lcd.write(0);
+       i = 16;
     }
+
+    lcd.setCursor(0,2); // set cursor to 0th index of third line
+    lcd.print("                   "); // clear 3rd line
+    lcd.setCursor(i,2); // set cursor to ith index of third line
+    lcd.write(0); // print arrow character
+    delay(200); // delay button presses 200 ticks
   }
 
   leftButtonPrevState = leftButtonState;
