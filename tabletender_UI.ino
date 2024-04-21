@@ -1,9 +1,11 @@
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
 
-#define leftButtonPin 10 // move left button connected to pin 2
-#define selectButtonPin 3 // select button connected to pin 3
-#define rightButtonPin 4 // move right button connected to pin 4
+#define leftButtonPin 10 // move left button connected to pin 10
+#define selectButtonPin 11 // select button connected to pin 11
+#define rightButtonPin 12 // move right button connected to pin 12
+
+// interrupt pins 2,3,18,19,20,21
 
 int leftButtonState = HIGH; // initialize left button state to HIGH (not pressed)
 int leftButtonPrevState = HIGH; // initialize left button previous state to HIGH (not pressed)
@@ -13,6 +15,7 @@ int rightButtonState = HIGH; // initialize right button state to HIGH (not press
 int rightButtonPrevState = HIGH; // initialize right button previous state to HIGH (not pressed)
 
 int i = 0; // index variable for selection
+int count = 0; // loop control variable for select button
 
 LiquidCrystal_I2C lcd(0x27,20,4);  // set the LCD address to 0x27 for a 20 chars and 4 line display
 
@@ -87,9 +90,43 @@ void loop() {
     delay(200); // delay button presses 200 ticks
   }
 
-  leftButtonPrevState = leftButtonState;
-  //selectButtonPrevState = selectButtonPrevState;
-  //rightButtonPrevState = rightButtonState;
-  // interrupt pins 2,3,18,19,20,21
+  if (rightButtonPrevState == LOW && rightButtonState == HIGH)
+  {
+    i = i + 4; // move right 4 indexes to move to each bay
 
+    if (i > 16) // if arrow at bay 1 on screen -> button pressed -> move to bay 5
+    {
+       i = 0;
+    }
+
+    lcd.setCursor(0,2); // set cursor to 0th index of third line
+    lcd.print("                   "); // clear 3rd line
+    lcd.setCursor(i,2); // set cursor to ith index of third line
+    lcd.write(0); // print arrow character
+    delay(200); // delay button presses 200 ticks
+  }
+
+  if (selectButtonPrevState == LOW && selectButtonState == HIGH)
+  {
+    while(count < 15) // loop 15 times to imitate blinks
+    {
+        lcd.setCursor(0, 2);
+        lcd.print("                  "); // clear 3rd line
+        delay(500);
+        lcd.setCursor(i, 2);
+        lcd.write(0);
+        delay(500);
+        count = count + 1; // increment count
+    }
+    count = 0; // reset count for loop
+    i = 0; // reset i back to 0
+    lcd.setCursor(0, 2); 
+    lcd.print("                  "); // clear 3rd line
+    lcd.setCursor(i, 2); // reset index back to 0
+    lcd.write(0); // place arrow back under bay 1
+  }
+
+  leftButtonPrevState = leftButtonState;
+  selectButtonPrevState = selectButtonState;
+  rightButtonPrevState = rightButtonState;
 }
