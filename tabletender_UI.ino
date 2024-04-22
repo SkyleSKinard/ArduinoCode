@@ -1,11 +1,17 @@
+#include <DHT.h>
+#include <DHT_U.h>
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
 
+#define dhtSensorPin 2 // temperature/humidity sensor connected to pin 2
+#define dhtType DHT11 // define type of sensor
 #define leftButtonPin 10 // move left button connected to pin 10
 #define selectButtonPin 11 // select button connected to pin 11
 #define rightButtonPin 12 // move right button connected to pin 12
 
 // interrupt pins 2,3,18,19,20,21
+
+DHT dht(dhtSensorPin, dhtType);
 
 int leftButtonState = HIGH; // initialize left button state to HIGH (not pressed)
 int leftButtonPrevState = HIGH; // initialize left button previous state to HIGH (not pressed)
@@ -37,6 +43,8 @@ void setup() {
   pinMode(selectButtonPin, INPUT_PULLUP);
   pinMode(rightButtonPin, INPUT_PULLUP);
 
+  dht.begin(); // initialize the temp/humidity sensor
+
   lcd.init();                      // initialize the lcd 
   lcd.backlight();
   
@@ -63,12 +71,19 @@ void setup() {
 
   // Line 4
   lcd.setCursor(0,3);
-  lcd.print("Humid:15%"); // place holder for humidity sensor
-  lcd.setCursor(12,3);
-  lcd.print("Temp:33F"); // place holder for temperature sensor
+  lcd.print("RH: "); // place holder for humidity sensor
+  lcd.setCursor(9,3);
+  lcd.print("Temp: "); // place holder for temperature sensor
 }
 
 void loop() {
+  lcd.setCursor(3,3);
+  lcd.print((int)dht.readHumidity() + 33); // display humidity to screen
+  lcd.print("%");
+  lcd.setCursor(14,3);
+  lcd.print((int)dht.readTemperature() + 22); // display temperature to screen
+  lcd.print("C");
+
   // put your main code here, to run repeatedly:
   leftButtonState = digitalRead(leftButtonPin); // get value of button state, HIGH = not pressed, LOW = pressed
   selectButtonState = digitalRead(selectButtonPin); // get value of button state, HIGH = not pressed, LOW = pressed
