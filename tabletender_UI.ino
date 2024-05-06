@@ -4,7 +4,7 @@
 #include <LiquidCrystal_I2C.h>
 
 #define dhtSensorPin 2 // temperature/humidity sensor connected to pin 2
-#define dhtType DHT11 // define type of sensor
+#define dhtType DHT22 // define type of sensor
 #define leftButtonPin 10 // move left button connected to pin 10
 #define selectButtonPin 11 // select button connected to pin 11
 #define rightButtonPin 12 // move right button connected to pin 12
