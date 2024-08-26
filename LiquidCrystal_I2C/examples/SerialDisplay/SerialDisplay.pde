@@ -1,3 +1,5 @@
+#include <LiquidCrystal.h>
+
 /*
  * Displays text sent over the serial port (e.g. from the Serial Monitor) on
  * an attached LCD.
@@ -9,6 +11,8 @@
 #include <LiquidCrystal_I2C.h>
 
 LiquidCrystal_I2C lcd(0x27,20,4);  // set the LCD address to 0x27 for a 16 chars and 2 line display
+
+const char array1[20] = "HELLO WORLD";
 
 void setup()
 {
@@ -25,6 +29,8 @@ void loop()
     delay(100);
     // clear the screen
     lcd.clear();
+
+    lcd.write(0,1)
     // read all the available characters
     while (Serial.available() > 0) {
       // display each character to the LCD
